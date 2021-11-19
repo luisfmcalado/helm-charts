@@ -1,5 +1,5 @@
 # Helm-Charts
-![Release Charts](https://github.com/luisfmcalado/helm-charts/actions/workflows/Release%20Charts/badge.svg?branch=master)
+![Release Charts](https://github.com/luisfmcalado/helm-charts/actions/workflows/release.yml/badge.svg?branch=master)
 
 ## Charts
 - [Airflow](./charts/airflow/README.md)
