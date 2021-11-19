@@ -15,29 +15,22 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# apiVersion v2 is Helm 3
----
-apiVersion: v2
-name: airflow
-version: 1.4.0-dev
-appVersion: 2.2.1
-description: The official Helm chart to deploy Apache Airflow, a platform to
-  programmatically author, schedule, and monitor workflows
-home: https://airflow.apache.org/
-sources:
-  - https://github.com/apache/airflow
-icon: https://airflow.apache.org/docs/apache-airflow/stable/_images/pin_large.png
-keywords:
-  - apache
-  - airflow
-  - workflow
-  - scheduler
-dependencies:
-  - name: postgresql
-    version: 10.5.3
-    repository: "https://charts.bitnami.com/bitnami"
-    condition: postgresql.enabled
-maintainers:
-  - email: dev@airflow.apache.org
-    name: Apache Airflow PMC
-type: application
+import unittest
+
+import jmespath
+
+from chart.tests.helm_template_generator import render_chart
+
+
+class LimitRangesTest(unittest.TestCase):
+    def test_limit_ranges_template(self):
+        docs = render_chart(
+            values={"limits": [{"max": {"cpu": "500m"}, "min": {"min": "200m"}, "type": "Container"}]},
+            show_only=["templates/limitrange.yaml"],
+        )
+        assert "LimitRange" == jmespath.search("kind", docs[0])
+        assert "500m" == jmespath.search("spec.limits[0].max.cpu", docs[0])
+
+    def test_limit_ranges_are_not_added_by_default(self):
+        docs = render_chart(show_only=["templates/limitrange.yaml"])
+        assert docs == []

@@ -14,30 +14,18 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+ARG STATSD_VERSION="missing_version"
 
-# apiVersion v2 is Helm 3
----
-apiVersion: v2
-name: airflow
-version: 1.4.0-dev
-appVersion: 2.2.1
-description: The official Helm chart to deploy Apache Airflow, a platform to
-  programmatically author, schedule, and monitor workflows
-home: https://airflow.apache.org/
-sources:
-  - https://github.com/apache/airflow
-icon: https://airflow.apache.org/docs/apache-airflow/stable/_images/pin_large.png
-keywords:
-  - apache
-  - airflow
-  - workflow
-  - scheduler
-dependencies:
-  - name: postgresql
-    version: 10.5.3
-    repository: "https://charts.bitnami.com/bitnami"
-    condition: postgresql.enabled
-maintainers:
-  - email: dev@airflow.apache.org
-    name: Apache Airflow PMC
-type: application
+FROM prom/statsd-exporter:${STATSD_VERSION}
+
+ARG STATSD_VERSION
+ARG AIRFLOW_STATSD_EXPORTER_VERSION
+ARG COMMIT_SHA
+
+LABEL org.apache.airflow.component="statsd-exporter" \
+    org.apache.airflow.stasd.version="${STATSD_VERSION}" \
+    org.apache.airflow.airflow-stasd-exporter.version="${AIRFLOW_STATSD_EXPORTER_VERSION}" \
+    org.apache.airflow.commit-sha="${COMMIT_SHA}" \
+    maintainer="Apache Airflow Community <dev@airflow.apache.org>"
+
+COPY mappings.yml /etc/statsd-exporter/mappings.yml

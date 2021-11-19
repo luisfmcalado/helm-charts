@@ -15,29 +15,21 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# apiVersion v2 is Helm 3
----
-apiVersion: v2
-name: airflow
-version: 1.4.0-dev
-appVersion: 2.2.1
-description: The official Helm chart to deploy Apache Airflow, a platform to
-  programmatically author, schedule, and monitor workflows
-home: https://airflow.apache.org/
-sources:
-  - https://github.com/apache/airflow
-icon: https://airflow.apache.org/docs/apache-airflow/stable/_images/pin_large.png
-keywords:
-  - apache
-  - airflow
-  - workflow
-  - scheduler
-dependencies:
-  - name: postgresql
-    version: 10.5.3
-    repository: "https://charts.bitnami.com/bitnami"
-    condition: postgresql.enabled
-maintainers:
-  - email: dev@airflow.apache.org
-    name: Apache Airflow PMC
-type: application
+import unittest
+
+from tests.helm_template_generator import render_chart
+
+
+class SchedulerPdbTest(unittest.TestCase):
+    def test_should_pass_validation_with_just_pdb_enabled_v1(self):
+        render_chart(
+            values={"scheduler": {"podDisruptionBudget": {"enabled": True}}},
+            show_only=["templates/scheduler/scheduler-poddisruptionbudget.yaml"],
+        )  # checks that no validation exception is raised
+
+    def test_should_pass_validation_with_just_pdb_enabled_v1beta1(self):
+        render_chart(
+            values={"scheduler": {"podDisruptionBudget": {"enabled": True}}},
+            show_only=["templates/scheduler/scheduler-poddisruptionbudget.yaml"],
+            kubernetes_version='1.16.0',
+        )  # checks that no validation exception is raised
